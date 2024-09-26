@@ -81,3 +81,72 @@ export async function getUsers(req, res) {
         console.error('Error al obtener un usuarios, el error: ', error);
     }
 }
+
+export async function updateUser(req, res) {
+    try {
+        const userRepository = AppDataSource.getRepository(User);
+
+        const id = req.params.id;
+        const user = req.body;
+
+        const userFound = await userRepository.findOne({
+            where: [{
+                id: id
+            }]
+        });
+
+        if(!userFound) {
+            return res.status(404).json({
+                message: "Usuario no encontrado",
+                data: null
+            });
+        }
+
+        await userRepository.update(id, user);
+
+        const userData = await userRepository.findOne({
+            where: [{
+                id: id
+            }]
+        });
+
+        res.status(200).json({
+            message: "Usuario actualizado correctamente",
+            data: userData
+        })
+    } catch (error) {
+        console.error("Error al actualizar un usuario: ", error);
+        res.status(500).json({ message: "Error interno en el servidor" });
+    }
+}
+
+export async function deleteUser(req, res) {
+    try {
+        const userRepository = AppDataSource.getRepository(User);
+
+        const id = req.params.id;
+
+        const userFound = await userRepository.findOne({
+            where: [{
+                id: id
+            }]
+        });
+
+        if(!userFound) {
+            return res.status(404).json({
+                message: "Usuario no encontrado",
+                data: null
+            });
+        }
+
+        const userDeleted = await userRepository.remove(userFound);
+
+        res.status(200).json({
+            message: "Usuario eliminado correctamente",
+            data: userDeleted
+        })
+    } catch (error) {
+        console.error("Error al eliminar un usuario: ", error);
+        res.status(500).json({ message: "Error interno en el servidor" });
+    }
+}
