@@ -1,27 +1,21 @@
 "use strict";
 import User from '../entity/user.entity.js';
 import { AppDataSource } from '../config/configDb.js';
+import { userBodyValidation } from '../validations/user.validation.js';
+import { createUserService, getUserService } from '../services/user.service.js';
+
 
 export async function createUser(req, res) {
     try {
-        const userRepository = AppDataSource.getRepository(User); // Instancia que permite interactuar con mi entidad de usuario
-
         const user = req.body;
 
-        if(!user) {
-            return res.status(400).json({
-                message: "Es necesario ingresar los datos del usuario.",
-                data: null
-            })
-        }
+        const { value, error } = userBodyValidation.validate(user);
 
-        const newUser = userRepository.create({
-            nombreCompleto: user.nombreCompleto,
-            rut: user.rut,
-            email: user.email
-        });
+        if(error) return res.status(400).json({
+            message: error.message
+        })
 
-        const userSaved = await userRepository.save(newUser);
+        const userSaved = await createUserService(value);
 
         res.status(201).json({
             message: "Usuario creado exitosamente",
@@ -34,15 +28,10 @@ export async function createUser(req, res) {
 
 export async function getUser(req, res) {
     try {
-        const userRepository = AppDataSource.getRepository(User);
 
         const id = req.params.id;
 
-        const userFound = await userRepository.findOne({
-            where: {
-                id: id
-            }
-        })
+        const userFound = await getUserService(id);
 
         if(!userFound) {
             return res.status(404).json({
