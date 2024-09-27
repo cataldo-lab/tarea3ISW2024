@@ -55,7 +55,7 @@ export async function getUsers(req, res) {
 
         const users = await userRepository.find();
 
-        if(!users) {
+        if(!users || users.length === 0) {
             return res.status(404).json({
                 message: "No se encontraron usuarios",
                 data: null
@@ -79,9 +79,7 @@ export async function updateUser(req, res) {
         const user = req.body;
 
         const userFound = await userRepository.findOne({
-            where: [{
-                id: id
-            }]
+            where: {id}
         });
 
         if(!userFound) {
@@ -116,9 +114,7 @@ export async function deleteUser(req, res) {
         const id = req.params.id;
 
         const userFound = await userRepository.findOne({
-            where: [{
-                id: id
-            }]
+            where: {id}
         });
 
         if(!userFound) {

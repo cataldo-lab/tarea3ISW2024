@@ -26,7 +26,7 @@ export async function getUserService(id) {
         const userRepository = AppDataSource.getRepository(User);
 
         const userFound = await userRepository.findOne({
-            where: { id: id }
+            where: { id }
         });
 
         if (!userFound) {
