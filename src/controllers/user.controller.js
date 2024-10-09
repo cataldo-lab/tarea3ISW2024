@@ -78,6 +78,12 @@ export async function updateUser(req, res) {
         const id = req.params.id;
         const user = req.body;
 
+        const { value, error } = userBodyValidation.validate(user);
+
+        if(error) return res.status(400).json({
+            message: error.message
+        })
+
         const userFound = await userRepository.findOne({
             where: {id}
         });
